@@ -17,8 +17,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class PentamanaExtra implements ModInitializer {
-    public static final String MOD_ID = "pentamana";
-    public static final String MOD_NAMESPACE = "pentamana";
+    public static final String MOD_ID = "pentamana-extra";
+    public static final String MOD_NAMESPACE = "pentamana_extra";
 
     // This logger is used to write text to the console and the log file.
     // It is considered best practice to use your mod id as the logger's name.
@@ -37,21 +37,21 @@ public class PentamanaExtra implements ModInitializer {
             CustomStatusEffectManager statusEffectManager = livingEntity.getCustomStatusEffectManager();
             float f = 0.0f;
 
-            f += livingEntity.getCustomModifiedValue(PentamanaAttributeIdentifiers.MANA_CAPACITY, capacity.doubleValue());
+            f += (float)livingEntity.getCustomModifiedValue(PentamanaAttributeIdentifiers.MANA_CAPACITY, capacity.doubleValue());
 
             for (Entry<Holder<Enchantment>> entry : livingEntity.getEnchantments(Enchantments.CAPACITY)) {
                 f += CONFIG.enchantmentCapacityBase * (entry.getIntValue() + 1);
             }
 
-            f += (statusEffectManager.contains(PentamanaStatusEffectIdentifiers.MANA_BOOST)
+            f += statusEffectManager.contains(PentamanaStatusEffectIdentifiers.MANA_BOOST)
                     ? CONFIG.statusEffectManaBoostBase * (statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_BOOST) + 1)
-                    : 0.0f);
-            f -= (statusEffectManager.contains(PentamanaStatusEffectIdentifiers.MANA_REDUCTION)
+                    : 0.0f;
+            f -= statusEffectManager.contains(PentamanaStatusEffectIdentifiers.MANA_REDUCTION)
                     ? CONFIG.statusEffectManaReductionBase * (statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_REDUCTION) + 1)
-                    : 0.0f);
-            f += (CONFIG.shouldConvertExperienceLevel && livingEntity instanceof ServerPlayer
+                    : 0.0f;
+            f += CONFIG.shouldConvertExperienceLevel && livingEntity instanceof ServerPlayer
                     ? CONFIG.experienceLevelConversionBase * ((ServerPlayer) livingEntity).experienceLevel
-                    : 0.0f);
+                    : 0.0f;
             f = Math.max(f, 0.0f);
             capacity.setValue(f);
             return InteractionResult.PASS;
@@ -61,24 +61,24 @@ public class PentamanaExtra implements ModInitializer {
             CustomStatusEffectManager statusEffectManager = livingEntity.getCustomStatusEffectManager();
             float f = 0.0f;
 
-            f += livingEntity.getCustomModifiedValue(PentamanaAttributeIdentifiers.MANA_REGENERATION, regeneration.doubleValue());
+            f += (float)livingEntity.getCustomModifiedValue(PentamanaAttributeIdentifiers.MANA_REGENERATION, regeneration.doubleValue());
 
             for (Entry<Holder<Enchantment>> entry : livingEntity.getEnchantments(Enchantments.STREAM)) {
                 f += CONFIG.enchantmentStreamBase * (entry.getIntValue() + 1);
             }
 
-            f += (statusEffectManager.contains(PentamanaStatusEffectIdentifiers.INSTANT_MANA)
+            f += statusEffectManager.contains(PentamanaStatusEffectIdentifiers.INSTANT_MANA)
                     ? CONFIG.statusEffectInstantManaBase * (float) Math.pow(2.0, statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.INSTANT_MANA))
-                    : 0.0f);
-            f -= (statusEffectManager.contains(PentamanaStatusEffectIdentifiers.INSTANT_DEPLETE)
+                    : 0.0f;
+            f -= statusEffectManager.contains(PentamanaStatusEffectIdentifiers.INSTANT_DEPLETE)
                     ? CONFIG.statusEffectInstantDepleteBase * (float) Math.pow(2.0, statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.INSTANT_DEPLETE))
-                    : 0.0f);
-            f += (statusEffectManager.contains(PentamanaStatusEffectIdentifiers.MANA_REGENERATION)
+                    : 0.0f;
+            f += statusEffectManager.contains(PentamanaStatusEffectIdentifiers.MANA_REGENERATION)
                     ? 1.0f / Math.max(1, CONFIG.statusEffectManaRegenerationBase >> statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_REGENERATION))
-                    : 0.0f);
-            f -= (statusEffectManager.contains(PentamanaStatusEffectIdentifiers.MANA_INHIBITION)
+                    : 0.0f;
+            f -= statusEffectManager.contains(PentamanaStatusEffectIdentifiers.MANA_INHIBITION)
                     ? 1.0f / Math.max(1, CONFIG.statusEffectManaInhibitionBase >> statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_INHIBITION))
-                    : 0.0f);
+                    : 0.0f;
             regeneration.setValue(f);
             return InteractionResult.PASS;
         });
@@ -86,7 +86,7 @@ public class PentamanaExtra implements ModInitializer {
         ManaEvents.CALCULATE_CONSUMPTION.register((livingEntity, consumption) -> {
             float f = 0.0f;
 
-            f += livingEntity.getCustomModifiedValue(PentamanaAttributeIdentifiers.MANA_CONSUMPTION, consumption.doubleValue());
+            f += (float)livingEntity.getCustomModifiedValue(PentamanaAttributeIdentifiers.MANA_CONSUMPTION, consumption.doubleValue());
 
             for (Entry<Holder<Enchantment>> entry : livingEntity.getEnchantments(Enchantments.MANA_EFFICIENCY)) {
                 f *= 1.0f - CONFIG.enchantmentManaEfficiencyBase * (entry.getIntValue() + 1);
@@ -100,7 +100,7 @@ public class PentamanaExtra implements ModInitializer {
             CustomStatusEffectManager statusEffectManager = livingEntity.getCustomStatusEffectManager();
             float f = 0.0f;
 
-            f += livingEntity.getCustomModifiedValue(PentamanaAttributeIdentifiers.CASTING_DAMAGE, damage.doubleValue());
+            f += (float)livingEntity.getCustomModifiedValue(PentamanaAttributeIdentifiers.CASTING_DAMAGE, damage.doubleValue());
 
             for (Entry<Holder<Enchantment>> entry : livingEntity.getEnchantments(Enchantments.POTENCY)) {
                 f += CONFIG.enchantmentPotencyBase * (entry.getIntValue() + 1);
