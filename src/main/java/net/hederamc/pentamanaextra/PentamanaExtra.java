@@ -2,6 +2,9 @@ package net.hederamc.pentamanaextra;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap.Entry;
 import net.fabricmc.api.ModInitializer;
+import net.hederamc.fishbonetrehalose.api.EnchantmentsHolder;
+import net.hederamc.generalcustomdata.api.CustomModifiersHolder;
+import net.hederamc.generalcustomdata.api.CustomStatusEffectsHolder;
 import net.hederamc.generalcustomdata.effect.CustomStatusEffectManager;
 import net.hederamc.pentamana.api.event.ManaEvents;
 import net.hederamc.pentamanaextra.attribute.PentamanaAttributeIdentifiers;
@@ -33,88 +36,117 @@ public class PentamanaExtra implements ModInitializer {
         // However, some things (like resources) may still be uninitialized.
         // Proceed with mild caution.
 
-        ManaEvents.CALCULATE_CAPACITY.register((livingEntity, capacity) -> {
-            CustomStatusEffectManager statusEffectManager = livingEntity.getCustomStatusEffectManager();
+        ManaEvents.CALCULATE_CAPACITY.register((holder, capacity) -> {
             float f = 0.0f;
 
-            f += (float)livingEntity.getCustomModifiedValue(PentamanaAttributeIdentifiers.MANA_CAPACITY, capacity.doubleValue());
-
-            for (Entry<Holder<Enchantment>> entry : livingEntity.getEnchantments(Enchantments.CAPACITY)) {
-                f += CONFIG.enchantmentCapacityBase * (entry.getIntValue() + 1);
+            if (holder instanceof CustomModifiersHolder) {
+                f += ((CustomModifiersHolder)holder).getCustomModifiedValue(PentamanaAttributeIdentifiers.MANA_CAPACITY, capacity.doubleValue());
             }
 
-            f += statusEffectManager.contains(PentamanaStatusEffectIdentifiers.MANA_BOOST)
-                    ? CONFIG.statusEffectManaBoostBase * (statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_BOOST) + 1)
-                    : 0.0f;
-            f -= statusEffectManager.contains(PentamanaStatusEffectIdentifiers.MANA_REDUCTION)
-                    ? CONFIG.statusEffectManaReductionBase * (statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_REDUCTION) + 1)
-                    : 0.0f;
-            f += CONFIG.shouldConvertExperienceLevel && livingEntity instanceof ServerPlayer
-                    ? CONFIG.experienceLevelConversionBase * ((ServerPlayer) livingEntity).experienceLevel
-                    : 0.0f;
+            if (holder instanceof EnchantmentsHolder) {
+                for (Entry<Holder<Enchantment>> entry : ((EnchantmentsHolder)holder).getEnchantments(Enchantments.CAPACITY)) {
+                    f += CONFIG.enchantmentCapacityBase * (entry.getIntValue() + 1);
+                }
+            }
+
+            if (holder instanceof CustomStatusEffectsHolder) {
+                CustomStatusEffectManager statusEffectManager = ((CustomStatusEffectsHolder)holder).getCustomStatusEffectManager();
+                f += statusEffectManager.contains(PentamanaStatusEffectIdentifiers.MANA_BOOST)
+                        ? CONFIG.statusEffectManaBoostBase * (statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_BOOST) + 1)
+                        : 0.0f;
+                f -= statusEffectManager.contains(PentamanaStatusEffectIdentifiers.MANA_REDUCTION)
+                        ? CONFIG.statusEffectManaReductionBase * (statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_REDUCTION) + 1)
+                        : 0.0f;
+            }
+
+            if (holder instanceof ServerPlayer) {
+                f += CONFIG.shouldConvertExperienceLevel
+                        ? CONFIG.experienceLevelConversionBase * ((ServerPlayer)holder).experienceLevel
+                        : 0.0f;
+            }
+
             f = Math.max(f, 0.0f);
             capacity.setValue(f);
             return InteractionResult.PASS;
         });
 
-        ManaEvents.CALCULATE_REGENERATION.register((livingEntity, regeneration) -> {
-            CustomStatusEffectManager statusEffectManager = livingEntity.getCustomStatusEffectManager();
+        ManaEvents.CALCULATE_REGENERATION.register((holder, regeneration) -> {
             float f = 0.0f;
 
-            f += (float)livingEntity.getCustomModifiedValue(PentamanaAttributeIdentifiers.MANA_REGENERATION, regeneration.doubleValue());
-
-            for (Entry<Holder<Enchantment>> entry : livingEntity.getEnchantments(Enchantments.STREAM)) {
-                f += CONFIG.enchantmentStreamBase * (entry.getIntValue() + 1);
+            if (holder instanceof CustomModifiersHolder) {
+                f += ((CustomModifiersHolder)holder).getCustomModifiedValue(PentamanaAttributeIdentifiers.MANA_REGENERATION, regeneration.doubleValue());
             }
 
-            f += statusEffectManager.contains(PentamanaStatusEffectIdentifiers.INSTANT_MANA)
-                    ? CONFIG.statusEffectInstantManaBase * (float) Math.pow(2.0, statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.INSTANT_MANA))
-                    : 0.0f;
-            f -= statusEffectManager.contains(PentamanaStatusEffectIdentifiers.INSTANT_DEPLETE)
-                    ? CONFIG.statusEffectInstantDepleteBase * (float) Math.pow(2.0, statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.INSTANT_DEPLETE))
-                    : 0.0f;
-            f += statusEffectManager.contains(PentamanaStatusEffectIdentifiers.MANA_REGENERATION)
-                    ? 1.0f / Math.max(1, CONFIG.statusEffectManaRegenerationBase >> statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_REGENERATION))
-                    : 0.0f;
-            f -= statusEffectManager.contains(PentamanaStatusEffectIdentifiers.MANA_INHIBITION)
-                    ? 1.0f / Math.max(1, CONFIG.statusEffectManaInhibitionBase >> statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_INHIBITION))
-                    : 0.0f;
+            if (holder instanceof EnchantmentsHolder) {
+                for (Entry<Holder<Enchantment>> entry : ((EnchantmentsHolder)holder).getEnchantments(Enchantments.STREAM)) {
+                    f += CONFIG.enchantmentStreamBase * (entry.getIntValue() + 1);
+                }
+            }
+
+            if (holder instanceof CustomStatusEffectsHolder) {
+                CustomStatusEffectManager statusEffectManager = ((CustomStatusEffectsHolder)holder).getCustomStatusEffectManager();
+                f += statusEffectManager.contains(PentamanaStatusEffectIdentifiers.INSTANT_MANA)
+                        ? CONFIG.statusEffectInstantManaBase * (float) Math.pow(2.0, statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.INSTANT_MANA))
+                        : 0.0f;
+                f -= statusEffectManager.contains(PentamanaStatusEffectIdentifiers.INSTANT_DEPLETE)
+                        ? CONFIG.statusEffectInstantDepleteBase * (float) Math.pow(2.0, statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.INSTANT_DEPLETE))
+                        : 0.0f;
+                f += statusEffectManager.contains(PentamanaStatusEffectIdentifiers.MANA_REGENERATION)
+                        ? 1.0f / Math.max(1, CONFIG.statusEffectManaRegenerationBase >> statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_REGENERATION))
+                        : 0.0f;
+                f -= statusEffectManager.contains(PentamanaStatusEffectIdentifiers.MANA_INHIBITION)
+                        ? 1.0f / Math.max(1, CONFIG.statusEffectManaInhibitionBase >> statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_INHIBITION))
+                        : 0.0f;
+            }
+
             regeneration.setValue(f);
             return InteractionResult.PASS;
         });
 
-        ManaEvents.CALCULATE_CONSUMPTION.register((livingEntity, consumption) -> {
+        ManaEvents.CALCULATE_CONSUMPTION.register((holder, consumption) -> {
             float f = 0.0f;
 
-            f += (float)livingEntity.getCustomModifiedValue(PentamanaAttributeIdentifiers.MANA_CONSUMPTION, consumption.doubleValue());
+            if (holder instanceof CustomModifiersHolder) {
+                f += ((CustomModifiersHolder)holder).getCustomModifiedValue(PentamanaAttributeIdentifiers.MANA_CONSUMPTION, consumption.doubleValue());
+            }
 
-            for (Entry<Holder<Enchantment>> entry : livingEntity.getEnchantments(Enchantments.MANA_EFFICIENCY)) {
-                f *= 1.0f - CONFIG.enchantmentManaEfficiencyBase * (entry.getIntValue() + 1);
+            if (holder instanceof EnchantmentsHolder) {
+                for (Entry<Holder<Enchantment>> entry : ((EnchantmentsHolder)holder).getEnchantments(Enchantments.MANA_EFFICIENCY)) {
+                    f *= 1.0f - CONFIG.enchantmentManaEfficiencyBase * (entry.getIntValue() + 1);
+                }
             }
 
             consumption.setValue(f);
             return InteractionResult.PASS;
         });
 
-        ManaEvents.CALCULATE_DAMAGE.register((livingEntity, entity, damage) -> {
-            CustomStatusEffectManager statusEffectManager = livingEntity.getCustomStatusEffectManager();
+        ManaEvents.CALCULATE_DAMAGE.register((holder, entity, damage) -> {
             float f = 0.0f;
 
-            f += (float)livingEntity.getCustomModifiedValue(PentamanaAttributeIdentifiers.CASTING_DAMAGE, damage.doubleValue());
-
-            for (Entry<Holder<Enchantment>> entry : livingEntity.getEnchantments(Enchantments.POTENCY)) {
-                f += CONFIG.enchantmentPotencyBase * (entry.getIntValue() + 1);
+            if (holder instanceof CustomModifiersHolder) {
+                f += ((CustomModifiersHolder)holder).getCustomModifiedValue(PentamanaAttributeIdentifiers.CASTING_DAMAGE, damage.doubleValue());
             }
 
-            f += statusEffectManager.contains(PentamanaStatusEffectIdentifiers.MANA_POWER)
-                    ? (statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_POWER) + 1) * CONFIG.statusEffectManaPowerBase
-                    : 0.0f;
-            f -= statusEffectManager.contains(PentamanaStatusEffectIdentifiers.MANA_SICKNESS)
-                    ? (statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_SICKNESS) + 1) * CONFIG.statusEffectManaSicknessBase
-                    : 0.0f;
-            f *= entity instanceof Witch
-                    ? 0.15f
-                    : 1.0f;
+            if (holder instanceof EnchantmentsHolder) {
+                for (Entry<Holder<Enchantment>> entry : ((EnchantmentsHolder)holder).getEnchantments(Enchantments.POTENCY)) {
+                    f += CONFIG.enchantmentPotencyBase * (entry.getIntValue() + 1);
+                }
+            }
+
+            if (holder instanceof CustomStatusEffectsHolder) {
+                CustomStatusEffectManager statusEffectManager = ((CustomStatusEffectsHolder)holder).getCustomStatusEffectManager();
+                f += statusEffectManager.contains(PentamanaStatusEffectIdentifiers.MANA_POWER)
+                        ? (statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_POWER) + 1) * CONFIG.statusEffectManaPowerBase
+                        : 0.0f;
+                f -= statusEffectManager.contains(PentamanaStatusEffectIdentifiers.MANA_SICKNESS)
+                        ? (statusEffectManager.getActiveAmplifier(PentamanaStatusEffectIdentifiers.MANA_SICKNESS) + 1) * CONFIG.statusEffectManaSicknessBase
+                        : 0.0f;
+            }
+
+            if (entity instanceof Witch) {
+                f *= 0.15f;
+            }
+
             f = Math.max(f, 0.0f);
             damage.setValue(f);
             return InteractionResult.PASS;
