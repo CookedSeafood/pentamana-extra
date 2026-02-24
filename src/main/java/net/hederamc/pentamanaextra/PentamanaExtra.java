@@ -3,6 +3,7 @@ package net.hederamc.pentamanaextra;
 import it.unimi.dsi.fastutil.objects.Object2IntMap.Entry;
 import net.fabricmc.api.ModInitializer;
 import net.hederamc.fishbonetrehalose.api.EnchantmentsHolder;
+import net.hederamc.fishbonetrehalose.api.ExperienceHolder;
 import net.hederamc.generalcustomdata.api.CustomModifiersHolder;
 import net.hederamc.generalcustomdata.api.CustomStatusEffectsHolder;
 import net.hederamc.generalcustomdata.effect.CustomStatusEffectManager;
@@ -11,7 +12,6 @@ import net.hederamc.pentamanaextra.attribute.PentamanaAttributeIdentifiers;
 import net.hederamc.pentamanaextra.config.PentamanaExtraConfig;
 import net.hederamc.pentamanaextra.effect.PentamanaStatusEffectIdentifiers;
 import net.minecraft.core.Holder;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.monster.Witch;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -59,9 +59,9 @@ public class PentamanaExtra implements ModInitializer {
                         : 0.0f;
             }
 
-            if (holder instanceof ServerPlayer) {
-                f += CONFIG.shouldConvertExperienceLevel
-                        ? CONFIG.experienceLevelConversionBase * ((ServerPlayer)holder).experienceLevel
+            if (holder instanceof ExperienceHolder) {
+                f += CONFIG.shouldConvertExperience
+                        ? CONFIG.experienceConversionBase * (31 - Integer.numberOfLeadingZeros(((ExperienceHolder)holder).getExperience()))
                         : 0.0f;
             }
 

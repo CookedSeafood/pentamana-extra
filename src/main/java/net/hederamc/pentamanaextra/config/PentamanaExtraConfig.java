@@ -27,6 +27,6 @@ public final class PentamanaExtraConfig {
     @SerialEntry public float statusEffectManaSicknessBase = 4.0f;
     @SerialEntry public int statusEffectManaRegenerationBase = 50;
     @SerialEntry public int statusEffectManaInhibitionBase = 40;
-    @SerialEntry public boolean shouldConvertExperienceLevel = false;
-    @SerialEntry public float experienceLevelConversionBase = 0.5f;
+    @SerialEntry public boolean shouldConvertExperience = false;
+    @SerialEntry public float experienceConversionBase = 1.0f;
 }
