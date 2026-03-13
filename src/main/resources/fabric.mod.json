@@ -43,7 +43,7 @@
         "generic-registry": "~4.0.0-",
         "fishbone-trehalose": "~4.0.0-",
         "general-custom-data": "~2.0.0-",
-        "yet_another_config_lib_v3": ">=3.8.2",
+        "yet_another_config_lib_v3": ">=3.9.0",
         "pentamana": "~2.0.0-"
     },
     "accessWidener": "pentamana-extra.classtweaker"
